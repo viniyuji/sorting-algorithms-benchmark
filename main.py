@@ -30,7 +30,7 @@ def generate_almost_sorted_array(size: int):
 @njit()
 def shell_sort(array):
     size = len(array)
-    h = size//2
+    h = 1
     while h > 0:
             for i in range(h, size):
                 insert_value = array[i]
