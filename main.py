@@ -28,150 +28,137 @@ def generate_almost_sorted_array(size: int):
     return array
 
 @njit()
-def shell_sort(arr):
-    h = 1
-    n = len(arr)
+def shell_sort(array):
+    size = len(array)
+    h = size//2
     while h > 0:
-            for i in range(h, n):
-                c = arr[i]
+            for i in range(h, size):
+                insert_value = array[i]
                 j = i
-                while j >= h and c < arr[j - h]:
-                    arr[j] = arr[j - h]
-                    j = j - h
-                    arr[j] = c
-            h = int(h / 2.2)
-    return arr
+                while j >= h and insert_value < array[j - h]:
+                    array[j] = array[j - h]
+                    j = j-h
+                array[j] = insert_value
+            h //= 2
  
 @njit()
-def insertion_sort(arr):
-    for i in range(1, len(arr)):
-        key = arr[i]
-        j = i-1
-        while j >= 0 and key < arr[j] :
-                arr[j + 1] = arr[j]
-                j -= 1
-        arr[j + 1] = key
+def insertion_sort(array):
+    for index in range(1, len(array)):
+        value = array[index]
+        while index > 0 and value < array[index-1]:
+                array[index] = array[index-1]
+                index -= 1
+        array[index] = value
 
 @njit()
 def selection_sort(array):
     size = len(array)
-    for ind in range(size):
-        min_index = ind
+    for i in range(size):
+        minimum_index = i
  
-        for j in range(ind + 1, size):
-            if array[j] < array[min_index]:
-                min_index = j
-        array[ind], array[min_index] = array[min_index], array[ind]
+        for j in range(i + 1, size):
+            if array[j] < array[minimum_index]:
+                minimum_index = j
+        
+        if minimum_index != i:
+            array[i], array[minimum_index] = array[minimum_index], array[i]
 
 @njit()
-def bubble_sort(arr):
-    n = len(arr)
-    # Traverse through all array elements
-    for i in range(n):
-        # Last i elements are already in place
-        for j in range(0, n-i-1):
-            # Traverse the array from 0 to n-i-1
-            # Swap if the element found is greater than the next element
-            if arr[j] > arr[j+1]:
-                arr[j], arr[j+1] = arr[j+1], arr[j]
+def bubble_sort(array):
+    size = len(array)
+
+    for i in range(size):
+        for j in range(0, size-i-1):
+            if array[j] > array[j+1]:
+                array[j], array[j+1] = array[j+1], array[j]
 
 @njit()
-def heapify(arr, n, i):
-    largest = i  # Initialize largest as root
-    l = 2 * i + 1  # left = 2*i + 1
-    r = 2 * i + 2  # right = 2*i + 2
+def heapify(array, size, index):
+    largest = index
+    left_index = 2 * index + 1
+    right_index = 2 * index + 2
 
-    # See if left child of root exists and is greater than root
-    if l < n and arr[l] > arr[largest]:
-        largest = l
+    if left_index < size and array[left_index] > array[largest]:
+        largest = left_index
 
-    # See if right child of root exists and is greater than largest so far
-    if r < n and arr[r] > arr[largest]:
-        largest = r
+    if right_index < size and array[right_index] > array[largest]:
+        largest = right_index
 
-    # Change root, if needed
-    if largest != i:
-        arr[i], arr[largest] = arr[largest], arr[i]  # swap
-
-        # Heapify the root.
-        heapify(arr, n, largest)
+    if largest != index:
+        array[index], array[largest] = array[largest], array[index]
+        heapify(array, size, largest)
 
 @njit()
-def heap_sort(arr):
-    n = len(arr)
+def heap_sort(array):
+    size = len(array)
 
-    # Build a maxheap.
-    for i in range(n, -1, -1):
-        heapify(arr, n, i)
+    for i in range(size, -1, -1):
+        heapify(array, size, i)
 
-    # One by one extract elements
-    for i in range(n - 1, 0, -1):
-        arr[i], arr[0] = arr[0], arr[i]  # swap
-        heapify(arr, i, 0)
+    for i in range(size - 1, 0, -1):
+        array[i], array[0] = array[0], array[i]
+        heapify(array, i, 0)
 
 @njit()
-def merge_sort(arr):
-    if len(arr) > 1:
-        mid = len(arr) // 2  # Finding the mid of the array
-        left_half = arr[:mid]  # Dividing the array elements into 2 halves
-        right_half = arr[mid:]
+def merge_sort(array):
+    if len(array) > 1:
+        divisor = len(array) // 2
+        left_half = array[:divisor]
+        right_half = array[divisor:]
 
-        merge_sort(left_half)  # Sorting the first half
-        merge_sort(right_half)  # Sorting the second half
+        merge_sort(left_half)
+        merge_sort(right_half)
 
-        i = j = k = 0
+        left_index = right_index = aux_index = 0
 
-        # Copy data to temporary arrays left_half[] and right_half[]
-        while i < len(left_half) and j < len(right_half):
-            if left_half[i] < right_half[j]:
-                arr[k] = left_half[i]
-                i += 1
+        while left_index < len(left_half) and right_index < len(right_half):
+            if left_half[left_index] < right_half[right_index]:
+                array[aux_index] = left_half[left_index]
+                left_index += 1
             else:
-                arr[k] = right_half[j]
-                j += 1
-            k += 1
+                array[aux_index] = right_half[right_index]
+                right_index += 1
+            aux_index += 1
 
-        # Checking if any element was left
-        while i < len(left_half):
-            arr[k] = left_half[i]
-            i += 1
-            k += 1
+        while left_index < len(left_half):
+            array[aux_index] = left_half[left_index]
+            left_index += 1
+            aux_index += 1
 
-        while j < len(right_half):
-            arr[k] = right_half[j]
-            j += 1
-            k += 1
+        while right_index < len(right_half):
+            array[aux_index] = right_half[right_index]
+            right_index += 1
+            aux_index += 1
 
 @njit()
-def partition(arr, low, high):
-    pivot = arr[high]
+def partition(array, low, high):
+    pivot = array[(low + high) // 2]
     i = low - 1
-    
-    for j in range(low, high):
-        if arr[j] <= pivot:
-            i += 1
-            arr[i], arr[j] = arr[j], arr[i]
-    
-    arr[i + 1], arr[high] = arr[high], arr[i + 1]
-    return i + 1
+    j = high + 1
 
-@njit()
-def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    
-    stack = [(0, len(arr) - 1)]
-    
+    while True:
+        i += 1
+        while array[i] < pivot:
+            i += 1
+
+        j -= 1
+        while array[j] > pivot:
+            j -= 1
+
+        if i >= j:
+            return j
+
+        array[i], array[j] = array[j], array[i]
+
+@njit
+def quick_sort(array):
+    stack = [(0, len(array) - 1)]
     while stack:
         low, high = stack.pop()
-        pivot_index = partition(arr, low, high)
-        
-        if pivot_index - 1 > low:
-            stack.append((low, pivot_index - 1))
-        if pivot_index + 1 < high:
-            stack.append((pivot_index + 1, high))
-    
-    return arr
+        if low < high:
+            p = partition(array, low, high)
+            stack.append((low, p))
+            stack.append((p + 1, high))
 
 
 result = pd.DataFrame(columns=["array_generator", "size", "algorithm", "instruction_count"])
@@ -180,17 +167,13 @@ array_generators = [generate_sorted_array, generate_reversed_sorted_array, gener
 algorithms = [shell_sort, insertion_sort, selection_sort, bubble_sort, heap_sort, merge_sort, quick_sort]
 
 for array_generator in array_generators:
-    #print(f"{array_generator.__name__}:")
     for size in sizes:
         array = array_generator(size)
         for algorithm in algorithms:
-            #print(f"\t{algorithm.__name__}:")
             with Collector() as c:
                 algorithm(array)
             
-            #print(f"\tSize of {size} take {c.counters.instruction_count} instructions")      
             result = result._append({"array_generator": array_generator.__name__, "size": size, "algorithm": algorithm.__name__, "instruction_count": c.counters.instruction_count}, ignore_index=True)
             print(result)
 
 result.to_csv("result.csv", index=False)
-    
