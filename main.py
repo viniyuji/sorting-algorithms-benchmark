@@ -152,13 +152,13 @@ def partition(array, low, high):
 
 @njit
 def quick_sort(array):
-    stack = [(0, len(array) - 1)]
-    while stack:
-        low, high = stack.pop()
+    aux = [(0, len(array) - 1)]
+    while aux:
+        low, high = aux.pop()
         if low < high:
             p = partition(array, low, high)
-            stack.append((low, p))
-            stack.append((p + 1, high))
+            aux.append((low, p))
+            aux.append((p + 1, high))
 
 
 result = pd.DataFrame(columns=["array_generator", "size", "algorithm", "instruction_count"])
@@ -174,6 +174,6 @@ for array_generator in array_generators:
                 algorithm(array)
             
             result = result._append({"array_generator": array_generator.__name__, "size": size, "algorithm": algorithm.__name__, "instruction_count": c.counters.instruction_count}, ignore_index=True)
-            print(result)
+            print(result.tail(1))
 
 result.to_csv("result.csv", index=False)
